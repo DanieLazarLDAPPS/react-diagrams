@@ -52,6 +52,6 @@ export * from "./widgets/BaseWidget";
 export * from "./widgets/layers/LinkLayerWidget";
 export * from "./widgets/layers/NodeLayerWidget";
 
-export * from "./labview/factories/LabViewLinkFactory";
-export * from "./labview/widgets/LabViewLinkWidget";
+export * from "./routing/rightAngle/factories/RightAngleLinkFactory";
+export * from "./routing/rightAngle/widgets/RightAngleLinkWidget";
 

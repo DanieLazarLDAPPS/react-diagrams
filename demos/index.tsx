@@ -49,7 +49,7 @@ import demo_adv_ser_des from "./demo-serializing";
 import demo_adv_prog from "./demo-mutate-graph";
 import demo_adv_dnd from "./demo-drag-and-drop";
 import demo_smart_routing from "./demo-smart-routing";
-import demo_labview_routing from "./demo-labview-routing";
+import demo_right_angles_routing from "./demo-right-angles-routing";
 
 storiesOf("Advanced Techniques", module)
 	.add("Clone Selected", demo_adv_clone_selected)
@@ -57,7 +57,7 @@ storiesOf("Advanced Techniques", module)
 	.add("Programatically modifying graph", demo_adv_prog)
 	.add("Drag and drop", demo_adv_dnd)
 	.add("Smart routing", demo_smart_routing)
-	.add("Labview routing", demo_labview_routing);
+	.add("Right angle routing", demo_right_angles_routing);
 
 import demo_cust_nodes from "./demo-custom-node1";
 import demo_cust_links from "./demo-custom-link1";
