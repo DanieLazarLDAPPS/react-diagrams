@@ -275,6 +275,9 @@ export class DiagramEngine extends BaseEntity<DiagramEngineListener> {
 	}
 
 	getNodeElement(node: NodeModel): Element {
+		if (!this.canvas) {
+			return null;
+		}
 		const selector = this.canvas.querySelector(`.node[data-nodeid="${node.getID()}"]`);
 		if (selector === null) {
 			throw new Error("Cannot find Node element with nodeID: [" + node.getID() + "]");
@@ -283,6 +286,9 @@ export class DiagramEngine extends BaseEntity<DiagramEngineListener> {
 	}
 
 	getNodePortElement(port: PortModel): any {
+		if (!this.canvas) {
+			return null;
+		}
 		var selector = this.canvas.querySelector(
 			`.port[data-name="${port.getName()}"][data-nodeid="${port.getParent().getID()}"]`
 		);
@@ -326,6 +332,14 @@ export class DiagramEngine extends BaseEntity<DiagramEngineListener> {
 		height: number;
 	} {
 		const sourceElement = this.getNodePortElement(port);
+		if (!sourceElement) {
+			return {
+				x: 0,
+				y: 0,
+				width: 0,
+				height: 0
+			};
+		}
 		const sourceRect = sourceElement.getBoundingClientRect();
 		const canvasRect = this.canvas.getBoundingClientRect() as ClientRect;
 
@@ -354,6 +368,12 @@ export class DiagramEngine extends BaseEntity<DiagramEngineListener> {
 		}
 
 		const nodeElement = this.getNodeElement(node);
+		if (!nodeElement) {
+			return {
+				width: 0,
+				height: 0
+			};
+		}
 		const nodeRect = nodeElement.getBoundingClientRect();
 
 		return {
@@ -496,6 +516,14 @@ export class DiagramEngine extends BaseEntity<DiagramEngineListener> {
 		}));
 
 		const canvas = this.canvas as HTMLDivElement;
+		if (!canvas) {
+			return {
+				width: 0,
+				hAdjustmentFactor: 0,
+				height: 0,
+				vAdjustmentFactor: 0
+			};
+		}
 		const minX =
 			Math.floor(
 				Math.min(_.minBy(_.concat(allNodesCoords, allPortsCoords, allPointsCoords), item => item.x).x, 0) /
