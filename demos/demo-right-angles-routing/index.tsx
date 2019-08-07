@@ -72,6 +72,7 @@ export default () => {
 			<DiagramWidget
 				className="srd-demo-canvas"
 				diagramEngine={engine}
+				smartRouting={true}
 			/>
 		</DemoWorkspaceWidget>
 	);

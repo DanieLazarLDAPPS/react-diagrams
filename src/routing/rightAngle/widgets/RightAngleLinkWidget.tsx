@@ -306,6 +306,20 @@ export class RightAngleLinkWidget extends BaseWidget<RightAngleLinkProps, RightA
 		window.removeEventListener('mouseup', this.handleUp);
 	}.bind(this);
 
+	isSmartRoutingApplicable(): boolean {
+		const { diagramEngine, link } = this.props;
+
+		if (!diagramEngine.isSmartRoutingEnabled()) {
+			return false;
+		}
+
+		if (link.sourcePort === null || link.targetPort === null) {
+			return false;
+		}
+
+		return true;
+	}
+
 	render() {
 		const { diagramEngine } = this.props;
 		if (!diagramEngine.nodesRendered) {
@@ -363,26 +377,62 @@ export class RightAngleLinkWidget extends BaseWidget<RightAngleLinkProps, RightA
 		}
 
 		for (let j = 0; j < points.length - 1; j++) {
-			paths.push(
-				this.generateLink(
-					Toolkit.generateLinePath(points[j], points[j + 1]),
-					{
-						"data-linkid": this.props.link.id,
-						"data-point": j,
-						onMouseDown: (event: MouseEvent) => {
-							if (event.button === 0) {
-								this.setState({ canDrag: true });
-								this.dragging_index = j;
-								// Register mouse move event to track mouse position
-								// On mouse up these events are unregistered check "this.handleUp"
-								window.addEventListener('mousemove', this.handleMove);
-								window.addEventListener('mouseup', this.handleUp);
-							}
-						}
-					},
-					j
-				)
-			);
+
+			const extraProps = {
+				"data-linkid": this.props.link.id,
+				"data-point": j,
+				onMouseDown: (event: MouseEvent) => {
+					if (event.button === 0) {
+						this.setState({ canDrag: true });
+						this.dragging_index = j;
+						// Register mouse move event to track mouse position
+						// On mouse up these events are unregistered check "this.handleUp"
+						window.addEventListener('mousemove', this.handleMove);
+						window.addEventListener('mouseup', this.handleUp);
+					}
+				}
+			};
+
+			if (this.isSmartRoutingApplicable()) {
+				// first step: calculate a direct path between the points being linked
+				const directPathCoords = this.pathFinding.calculateDirectPath(points[j], points[j + 1]);
+
+				const routingMatrix = diagramEngine.getRoutingMatrix();
+				// now we need to extract, from the routing matrix, the very first walkable points
+				// so they can be used as origin and destination of the link to be created
+				const smartLink = this.pathFinding.calculateLinkStartEndCoords(routingMatrix, directPathCoords);
+
+				if (smartLink) {
+					const { start, end, pathToStart, pathToEnd } = smartLink;
+
+					// second step: calculate a path avoiding hitting other elements
+					const simplifiedPath = this.pathFinding.calculateDynamicPath(
+						routingMatrix,
+						start,
+						end,
+						pathToStart,
+						pathToEnd
+					);
+
+					paths.push(
+						//smooth: boolean, extraProps: any, id: string | number, firstPoint: PointModel, lastPoint: PointModel
+						this.generateLink(
+							Toolkit.generateDynamicPath(simplifiedPath),
+							extraProps,
+							j
+						)
+					);
+				}
+			} else {
+				paths.push(
+					this.generateLink(
+						Toolkit.generateLinePath(points[j], points[j + 1]),
+						extraProps,
+						j
+					)
+				);
+			}
+
 		}
 
 		this.refPaths = [];
